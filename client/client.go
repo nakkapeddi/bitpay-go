@@ -6,11 +6,14 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"errors"
-	ku "github.com/bitpay/bitpay-go/key_utils"
 	"io/ioutil"
 	"net/http"
 	"regexp"
 	"strconv"
+
+	"github.com/shopspring/decimal"
+
+	ku "github.com/bitpay/bitpay-go/key_utils"
 )
 
 // The Client struct maintains the state of the current client. To use a client from session to session, the Pem and Token will need to be saved and used in the next client. The ClientId can be recreated by using the key_util.GenerateSinFromPem func, and the ApiUri will generally be https://bitpay.com. Insecure should generally be set to false or not set at all, there are a limited number of test scenarios in which it must be set to true.
@@ -54,25 +57,77 @@ type invoice struct {
 	Token           string
 }
 
-// CreateInvoice returns an invoice type or pass the error from the server. The method will create an invoice on the BitPay server.
-func (client *Client) CreateInvoice(price float64, currency string) (inv invoice, err error) {
-	match, _ := regexp.MatchString("^[[:upper:]]{3}$", currency)
+// The CreateInvoiceParams struct represents the fields for creating an invoice on BitPay
+type CreateInvoiceParams struct {
+	Token                 string      `json:"token"`
+	ClientID              string      `json:"id"`
+	Currency              string      `json:"currency"`
+	Price                 float64     `json:"price"`
+	OrderID               string      `json:"orderId,omitempty"`
+	FullNotifications     bool        `json:"fullNotifications,omitempty"`
+	ExtendedNotifications bool        `json:"extendedNotifications,omitempty"`
+	TransactionSpeed      string      `json:"transactionSpeed,omitempty"`
+	NotificationURL       string      `json:"notificationURL,omitempty"`
+	NotificationEmail     string      `json:"notificationEmail,omitempty"`
+	RedirectURL           string      `json:"redirectURL,omitempty"`
+	Physical              bool        `json:"physical,omitempty"`
+	Buyer                 *Buyer      `json:"buyer,omitempty"`
+	PosData               interface{} `json:"posData,omitempty"`
+	ItemDesc              string      `json:"itemDesc,omitempty"`
+	ItemCode              string      `json:"itemCode,omitempty"`
+	PaymentCurrencies     []string    `json:"paymentCurrencies,omitempty"`
+	JSONPayProRequired    bool        `json:"jsonPayProRequired,omitempty"`
+}
+
+// The Buyer struct represents the buyer fields for creating an invoice on BitPay
+type Buyer struct {
+	Name       string `json:"name"`
+	AddressOne string `json:"address1"`
+	AddressTwo string `json:"address2"`
+	Locality   string `json:"locality"`
+	Region     string `json:"region"`
+	PostalCode string `json:"postalCode"`
+	Country    string `json:"country"`
+	Email      string `json:"email"`
+	Phone      string `json:"phone"`
+	Notify     bool   `json:"notify"`
+}
+
+func (cip *CreateInvoiceParams) checkCurrencyString() error {
+	match, _ := regexp.MatchString("^[[:upper:]]{3}$", cip.Currency)
 	if !match {
-		err = errors.New("BitPayArgumentError: invalid currency code")
+		err := errors.New("BitPayArgumentError: invalid currency code")
+		return err
+	}
+	return nil
+}
+
+func (cip *CreateInvoiceParams) setFloatPrecision() {
+	var clampedPrice decimal.Decimal
+	if cip.Currency != "BTC" {
+		clampedPrice = decimal.NewFromFloatWithExponent(cip.Price, -2)
+	} else {
+		clampedPrice = decimal.NewFromFloatWithExponent(cip.Price, -8)
+	}
+
+	cip.Price, _ = clampedPrice.Float64()
+}
+
+// CreateInvoice returns an invoice type or pass the error from the server. The method will create an invoice on the BitPay server.
+func (client *Client) CreateInvoice(invoiceParams CreateInvoiceParams) (inv invoice, err error) {
+	err = invoiceParams.checkCurrencyString()
+	if err != nil {
 		return inv, err
 	}
-	paylo := make(map[string]string)
-	var floatPrec int
-	if currency == "BTC" {
-		floatPrec = 8
-	} else {
-		floatPrec = 2
+	invoiceParams.setFloatPrecision()
+	invoiceParams.Token = client.Token.Token
+	invoiceParams.ClientID = client.ClientId
+
+	paylo, err := json.Marshal(invoiceParams)
+	if err != nil {
+		return inv, err
 	}
-	priceString := strconv.FormatFloat(price, 'f', floatPrec, 64)
-	paylo["price"] = priceString
-	paylo["currency"] = currency
-	paylo["token"] = client.Token.Token
-	paylo["id"] = client.ClientId
+
 	response, _ := client.Post("invoices", paylo)
 	inv, err = processInvoice(response)
 	return inv, err
@@ -124,10 +179,9 @@ func (client *Client) PairClient(paylo map[string]string) (tok Token, err error)
 	return tok, err
 }
 
-func (client *Client) Post(path string, paylo map[string]string) (response *http.Response, err error) {
+func (client *Client) Post(path string, payload []byte) (response *http.Response, err error) {
 	url := client.ApiUri + "/" + path
 	htclient := setHttpClient(client)
-	payload, _ := json.Marshal(paylo)
 	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(payload))
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("accept", "application/json")
