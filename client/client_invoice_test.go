@@ -2,9 +2,10 @@ package client_test
 
 import (
 	"encoding/json"
-	. "github.com/bitpay/bitpay-go/client"
-	ku "github.com/bitpay/bitpay-go/key_utils"
 	"strings"
+
+	. "github.com/nakkapeddi/bitpay-go/client"
+	ku "github.com/nakkapeddi/bitpay-go/key_utils"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

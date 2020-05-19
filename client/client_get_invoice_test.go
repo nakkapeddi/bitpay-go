@@ -1,9 +1,10 @@
 package client_test
 
 import (
-	. "github.com/bitpay/bitpay-go/client"
+	. "github.com/nakkapeddi/bitpay-go/client"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
 	//"io/ioutil"
 	"os"
 	"time"

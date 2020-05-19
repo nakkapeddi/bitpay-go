@@ -1,6 +1,4 @@
 github.com/aead/siphash v1.0.1/go.mod h1:Nywa3cDsYNNK3gaciGTWPwHt0wlpNV15vwmswBAUSII=
-github.com/bitpay/bitpay-go v2.2.2+incompatible h1:gvvj1NNd0s9GRr6jK2Lrj8H3QWVBeqA/P667x6CCUWs=
-github.com/bitpay/bitpay-go v2.2.2+incompatible/go.mod h1:3KcLVUpHDoPYIEqn3Y67NrsU2XSU0TdF8xX5Cdt5eio=
 github.com/btcsuite/btcd v0.20.1-beta h1:Ik4hyJqN8Jfyv3S4AGBOmyouMsYE3EdYODkMbQjwPGw=
 github.com/btcsuite/btcd v0.20.1-beta/go.mod h1:wVuoA8VJLEcwgqHBwHmzLRazpKxTv13Px/pDuV7OomQ=
 github.com/btcsuite/btclog v0.0.0-20170628155309-84c8d2346e9f/go.mod h1:TdznJufoqS23FtqVCzL0ZqgP5MqXbb4fg/WgDys70nA=

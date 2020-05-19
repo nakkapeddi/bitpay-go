@@ -13,7 +13,7 @@ import (
 
 	"github.com/shopspring/decimal"
 
-	ku "github.com/bitpay/bitpay-go/key_utils"
+	ku "github.com/nakkapeddi/bitpay-go/key_utils"
 )
 
 // The Client struct maintains the state of the current client. To use a client from session to session, the Pem and Token will need to be saved and used in the next client. The ClientId can be recreated by using the key_util.GenerateSinFromPem func, and the ApiUri will generally be https://bitpay.com. Insecure should generally be set to false or not set at all, there are a limited number of test scenarios in which it must be set to true.

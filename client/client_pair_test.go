@@ -2,16 +2,18 @@ package client_test
 
 import (
 	"encoding/json"
-	. "github.com/bitpay/bitpay-go/client"
-	ku "github.com/bitpay/bitpay-go/key_utils"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
 
+	. "github.com/nakkapeddi/bitpay-go/client"
+	ku "github.com/nakkapeddi/bitpay-go/key_utils"
+
+	"strings"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"strings"
 )
 
 var _ = Describe("ClientPair", func() {

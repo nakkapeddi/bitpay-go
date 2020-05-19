@@ -1,17 +1,18 @@
 package key_utils_test
 
 import (
-	. "github.com/bitpay/bitpay-go/key_utils"
+	. "github.com/nakkapeddi/bitpay-go/key_utils"
 
 	"crypto/elliptic"
 	"crypto/sha256"
 	"encoding/asn1"
 	"encoding/hex"
 	"encoding/pem"
+	"regexp"
+
 	"github.com/btcsuite/btcd/btcec"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"regexp"
 )
 
 var _ = Describe("Testing with Ginkgo", func() {
